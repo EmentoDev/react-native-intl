@@ -6,6 +6,7 @@ package kim.taegon.rnintl;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.HashMap;
@@ -170,7 +171,7 @@ public class GettextParser {
                 }
                 if (nullSeparatorPos < 0) break;
 
-                String str = new String(Arrays.copyOfRange(data, 0, nullSeparatorPos), StandardCharsets.UTF_8);
+                String str = new String(Arrays.copyOfRange(data, 0, nullSeparatorPos), Charset.forName("UTF-8"));
                 result.add(str);
 
                 data = Arrays.copyOfRange(data, nullSeparatorPos+1, data.length);
@@ -179,7 +180,7 @@ public class GettextParser {
             if (result.size() == 0 && data.length == 0) {
                 result.add("");
             } else if (data.length > 0) {
-                String str = new String(data, StandardCharsets.UTF_8);
+                String str = new String(data, Charset.forName("UTF-8"));
                 result.add(str);
             }
         } catch (Exception e) {

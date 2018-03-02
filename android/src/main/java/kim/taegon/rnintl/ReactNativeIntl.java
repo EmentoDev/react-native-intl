@@ -60,7 +60,7 @@ public class ReactNativeIntl extends ReactContextBaseJavaModule {
         Locale locale;
 
         try {
-            locale = Locale.forLanguageTag(localeIdenfitier);
+            locale = new Locale(localeIdentifier); //Locale.forLanguageTag(localeIdentifier);
         } catch(Exception e) {
             // fallback
             locale = Locale.forLanguageTag(getSystemLocale().replace('-', '_'));
@@ -126,10 +126,10 @@ public class ReactNativeIntl extends ReactContextBaseJavaModule {
         Locale locale;
 
         try {
-            locale = Locale.forLanguageTag(localeIdentifier);
+            locale = new Locale(localeIdentifier); //Locale.forLanguageTag(localeIdentifier);
         } catch (Exception e) {
             // fallback
-            locale = Locale.forLanguageTag(getSystemLocale().replace('-', '_'));
+            locale = new Locale(getSystemLocale().replace('-', '_'));
         }
 
         try {
@@ -169,7 +169,7 @@ public class ReactNativeIntl extends ReactContextBaseJavaModule {
     @ReactMethod
     public void loadCatalog(String localeIdentifier, Promise promise) {
          try {
-             Locale locale = Locale.forLanguageTag(localeIdentifier);
+             locale = new Locale(localeIdentifier); //Locale.forLanguageTag(localeIdentifier);
              Context context = getReactApplicationContext().getApplicationContext();
              InputStream stream = null;
 	     String assetDir = "i18n/";
