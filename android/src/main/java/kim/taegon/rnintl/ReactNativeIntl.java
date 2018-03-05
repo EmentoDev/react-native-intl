@@ -34,36 +34,36 @@ import android.content.Context;
 import android.text.format.DateFormat;
 
 public class ReactNativeIntl extends ReactContextBaseJavaModule {
-	public ReactNativeIntl(ReactApplicationContext reactContext) {
-		super(reactContext);
-	}
+    public ReactNativeIntl(ReactApplicationContext reactContext) {
+        super(reactContext);
+    }
 
-	@Override
-	public String getName() {
-		return "RNIntl";
-	}
+    @Override
+    public String getName() {
+        return "RNIntl";
+    }
 
-	@Override
-	public Map<String, Object> getConstants() {
-		MapBuilder.Builder<String, Object> builder = MapBuilder.builder();
+    @Override
+    public Map<String, Object> getConstants() {
+        MapBuilder.Builder<String, Object> builder = MapBuilder.builder();
 
-		builder.put("systemLocale", getSystemLocale());
-		builder.put("languages", getAvailableLocales());
-		builder.put("availableLocales", getAvailableLocales());
-		builder.put("availableCalendars", "");
+        builder.put("systemLocale", getSystemLocale());
+        builder.put("languages", getAvailableLocales());
+        builder.put("availableLocales", getAvailableLocales());
+        builder.put("availableCalendars", "");
 
-		return builder.build();
-	}
+        return builder.build();
+    }
 
     @ReactMethod
-    public void formatNumber(double number, String localeIdenfitier, @Nullable ReadableMap options, Promise promise) {
+    public void formatNumber(double number, String localeIdentifier, @Nullable ReadableMap options, Promise promise) {
         Locale locale;
 
         try {
             locale = new Locale(localeIdentifier); //Locale.forLanguageTag(localeIdentifier);
         } catch(Exception e) {
             // fallback
-            locale = Locale.forLanguageTag(getSystemLocale().replace('-', '_'));
+            locale = new Locale(getSystemLocale().replace('-', '_'));
         }
 
         try {
@@ -146,18 +146,18 @@ public class ReactNativeIntl extends ReactContextBaseJavaModule {
                     df.setTimeZone(tz);
                 }
 
-		String pattern = DateFormat.getBestDateTimePattern(locale, options.getString("template"));
+                String pattern = DateFormat.getBestDateTimePattern(locale, options.getString("template"));
 
                 // hour12
                 if (options.hasKey("hour12")) {
-		  if (options.getBoolean("hour12")) {
-		    pattern = pattern.replace('H', 'h');
-		  } else {
-		    pattern = pattern.replace('h', 'H');
-		  }
+                    if (options.getBoolean("hour12")) {
+                        pattern = pattern.replace('H', 'h');
+                    } else {
+                        pattern = pattern.replace('h', 'H');
+                    }
                 }
 
-		df.applyLocalizedPattern(pattern);
+                df.applyLocalizedPattern(pattern);
             }
 
             promise.resolve(df.format(date));
@@ -168,52 +168,53 @@ public class ReactNativeIntl extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void loadCatalog(String localeIdentifier, Promise promise) {
-         try {
-             locale = new Locale(localeIdentifier); //Locale.forLanguageTag(localeIdentifier);
-             Context context = getReactApplicationContext().getApplicationContext();
-             InputStream stream = null;
-	     String assetDir = "i18n/";
-	     String assetName = localeIdentifier.replace('-', '_');
+        Locale locale;
+        try {
+            locale = new Locale(localeIdentifier); //Locale.forLanguageTag(localeIdentifier);
+            Context context = getReactApplicationContext().getApplicationContext();
+            InputStream stream = null;
+            String assetDir = "i18n/";
+            String assetName = localeIdentifier.replace('-', '_');
 
-             try {
-                 stream = context.getAssets().open(assetDir+assetName+".mo");
-             } catch(IOException e) {
-                 // fallback - using language only
-                 stream = context.getAssets().open(assetDir+locale.getLanguage()+".mo");
-             }
+            try {
+                stream = context.getAssets().open(assetDir+assetName+".mo");
+            } catch(IOException e) {
+                // fallback - using language only
+                stream = context.getAssets().open(assetDir+locale.getLanguage()+".mo");
+            }
 
-             GettextParser parser = new GettextParser(stream);
-             Map<String, Object> rawCatalog = parser.getCatalog();
+            GettextParser parser = new GettextParser(stream);
+            Map<String, Object> rawCatalog = parser.getCatalog();
 
-             WritableMap catalog = Arguments.createMap();
-             WritableMap headers = Arguments.createMap();
-             WritableMap translations = Arguments.createMap();
+            WritableMap catalog = Arguments.createMap();
+            WritableMap headers = Arguments.createMap();
+            WritableMap translations = Arguments.createMap();
 
-             // headers
-             if (rawCatalog.containsKey("headers")) {
-                 for (Map.Entry<String, String> entry : ((Map<String, String>)rawCatalog.get("headers")).entrySet()) {
-                     headers.putString(entry.getKey(), entry.getValue());
-                 }
-             }
+            // headers
+            if (rawCatalog.containsKey("headers")) {
+                for (Map.Entry<String, String> entry : ((Map<String, String>)rawCatalog.get("headers")).entrySet()) {
+                    headers.putString(entry.getKey(), entry.getValue());
+                }
+            }
 
-             // translations
-             if (rawCatalog.containsKey("translations")) {
-                 for (Map.Entry<String, String[]> entry: ((Map<String, String[]>)rawCatalog.get("translations")).entrySet()) {
-                     WritableArray messages = Arguments.createArray();
-                     for (String msg: entry.getValue()) {
-                         messages.pushString(msg);
-                     }
-                     translations.putArray(entry.getKey(), messages);
-                 }
-             }
+            // translations
+            if (rawCatalog.containsKey("translations")) {
+                for (Map.Entry<String, String[]> entry: ((Map<String, String[]>)rawCatalog.get("translations")).entrySet()) {
+                    WritableArray messages = Arguments.createArray();
+                    for (String msg: entry.getValue()) {
+                        messages.pushString(msg);
+                    }
+                    translations.putArray(entry.getKey(), messages);
+                }
+            }
 
-             catalog.putMap("headers", headers);
-             catalog.putMap("translations", translations);
+            catalog.putMap("headers", headers);
+            catalog.putMap("translations", translations);
 
-             promise.resolve(catalog);
-         } catch(Exception e) {
-             promise.reject(e.getMessage());
-         }
+            promise.resolve(catalog);
+        } catch(Exception e) {
+            promise.reject(e.getMessage());
+        }
     }
 
     protected String getSystemLocale() {
@@ -221,12 +222,12 @@ public class ReactNativeIntl extends ReactContextBaseJavaModule {
         return localeIdentifier.replace('_', '-');
     }
 
-	protected List<String> getAvailableLocales() {
-		Locale[] locales = Locale.getAvailableLocales();
+    protected List<String> getAvailableLocales() {
+        Locale[] locales = Locale.getAvailableLocales();
         List<String> langs = new ArrayList<>(locales.length);
 
-		for (Locale locale: locales) langs.add(locale.toString().replace('_', '-'));
+        for (Locale locale: locales) langs.add(locale.toString().replace('_', '-'));
 
-		return langs;
-	}
+        return langs;
+    }
 }
